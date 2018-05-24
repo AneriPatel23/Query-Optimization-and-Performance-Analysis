@@ -1,14 +1,10 @@
 from faker import Factory
 import json
-from math import floor
 # functions to generate random values
-from random import expovariate, normalvariate, choice, randint, random, shuffle
+from random import choice, randint, random
 
 # Faker random value generator
 generator = Factory.create()
-
-# dict to save used store names
-used_storenames = {}
 
 # Output files
 store_file = None
@@ -18,6 +14,7 @@ class Object:
         return json.dumps(self, default=lambda o: o.__dict__, 
             sort_keys=True, indent=4)
     
+#user fields : id, name, email and task assigned to the user
 class user(object):
     def __init__(self, user_name, user_id, email, task):
         self.user_name = user_name
@@ -25,17 +22,7 @@ class user(object):
         self.email = email
         self.task=task
 
-    def __str__(self):
-        '''
-        Return JSON string for entire store document,
-        compatible with mongoimport
-        '''
-        storedict = {}
-        storedict["user_name"] = self.user_name
-        storedict["user_id"] = self.user_id
-        storedict["email"] = self.email
-        return json.dumps(storedict)
-
+#task fields: id, name, date task was created, due date of the task
 class task(object):
     def __init__(self, task_id, task_name, created_on, due_on):
         self.task_id = task_id
@@ -43,11 +30,13 @@ class task(object):
         self.created_on=created_on
         self.due_on=due_on;
 
+ #section fields: id, name of the section
 class section(object):
     def __init__(self, section_id, section_name):
         self.section_id = section_id
         self.section_name = section_name
-        
+ 
+#project fields: name, id, workspace id, users belonging to that project, sections of the project
 class project(object):
     def __init__(self, name, project_id, workspace_id, user, section):
         self.name = name
@@ -59,7 +48,7 @@ class project(object):
         
     def __str__(self):
         '''
-        Return JSON string for entire store document,
+        Return JSON string for entire project document,
         compatible with mongoimport
         '''
         me = Object()
@@ -80,11 +69,10 @@ class project(object):
         me.section.section_name=self.section.section_name
         
         return me.toJSON()
-     
+ 
+# method returns a project name
 def gen_project_name():
-    '''
-    Generate a random restaurant name
-    '''
+   
     pnames= ("0")
     pnames = list(pnames)
     for i in range(1,201):
@@ -94,10 +82,9 @@ def gen_project_name():
     name = choice(pnames)
     return name
     
+# method returns a project id
 def gen_project_id():
-    '''
-    Generate cost rating, an integer rating
-    '''
+    
     pid= ("1")
     j=1
     pid = list(pid)
@@ -108,10 +95,9 @@ def gen_project_id():
     projectId = choice(pid)
     return projectId
 
+#method returns a workspace id
 def gen_workspace_id():
-    '''
-    Generate a random list of categories
-    '''
+   
     wid= ("1")
     j=1
     wid = list(wid)
@@ -122,15 +108,19 @@ def gen_workspace_id():
     workspaceId = choice(wid)
     return workspaceId
 
+#method returns a random user id
 def gen_user_id():
     return randint(1,2000)
 
+#method returns a random task id
 def gen_task_id():
     return randint(1,100)
 
+#method returns a random section id
 def gen_section_id():
     return randint(1,1000)
 
+#method returns a task name
 def gen_task_name():
     taskNames=("task1","task2","task3","task4","task5","task6","task7","task8","task9","task10",
                "task11","task12","task13","task14","task15","task16","task17","task18","task19","task20",
@@ -144,13 +134,13 @@ def gen_task_name():
                "task91","task92","task93","task94","task95","task96","task97","task98","task99","task100")
     return choice(taskNames)
 
+#method returns a section name
 def gen_section_name():
     sectionNames=("QA","Testing","Development","Hardware","Software","Finance","Marketing","HR","Deployment","Data Management","Database Administration")
     return choice(sectionNames)
     
+#method generates and returns one task with all the required fields
 def gen_single_task():
-    #created=generator.past_datetime("-30d", None)
-    #due=generator.date_time_this_decade(True,False,None)
     new_task = task(gen_task_id(),
                     gen_task_name(),
                     generator.date(),
@@ -158,9 +148,9 @@ def gen_single_task():
 
     return new_task
 
+#method generates and returns one project with all the required fields
 def generate_single_project():
-    ''' Generate fields for one store
-    '''    
+     
     new_project = project(gen_project_name(),
                        gen_project_id(),
                        gen_workspace_id(),
@@ -169,34 +159,32 @@ def generate_single_project():
     store_file.write(str(new_project) + '\n')
     return new_project
 
+#method generates and returns one section with all the required fields
 def generate_single_section():
-    ''' Generate fields for one store
-    '''    
+    
     new_section = section(gen_section_id(),
                        gen_section_name())
     return new_section
    
+ #method generates and returns one user with all the required fields
 def generate_single_user():
-    ''' Generate fields for one store
-    '''    
+      
     new_user = user(generator.name(),
                     gen_user_id(),
                     generator.email(),
                     gen_single_task())
-   # store_file.write(str(new_user) + '\n')
     return new_user
    
+#method generates the specified number of projects 
 def generate_projects(num_projects):
-    '''
-    Generate store records
-    '''
+    
     for store_index in range(num_projects):
         generate_single_project()
     store_file.close()
         
 if __name__ == '__main__':
     import sys
-    store_file = open('C:/Users/Aneri Patel/Documents/stores.json', 'w')
+    store_file = open('C:/Users/Aneri Patel/Documents/projects.json', 'w')
 
     if len(sys.argv) == 1:
         to_generate = 2000
