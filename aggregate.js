@@ -49,3 +49,19 @@ while(result.hasNext()){
 printjson(result.next());
 }
 
+//Count the number of projects under each workspace ID
+
+result = db.projects.aggregate({
+  
+    $group: {
+        _id : "$workspace_id",
+        total: {$sum:1}
+    }
+});
+
+print('Result after aggregating the Projects under each workspace ID');
+
+while(result.hasNext()){
+printjson(result.next());
+}
+
